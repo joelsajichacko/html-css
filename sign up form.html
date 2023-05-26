@@ -1,0 +1,124 @@
+<head>
+  <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+  rel="stylesheet"
+  crossorigin="anonymous"
+/>
+<style>
+  input#name:invalid:focus {
+      border: 1px solid red;
+  }
+</style>
+</head>
+
+<body class="bg-purple-200">
+  <div class="w-full max-w-lg m-auto my-10">
+      <form action="" id="user-form" class="bg-white shadow-md rounded px-8 pt-8 pb-16 mb-8">
+          <p class="text-3xl font-bold pb-8"> Signup Form</p>
+          <label for="name" class="block text-gray-700 text-sm font-bold mt-1" >Name:</label>
+          <input type="text" name="name" id="name" required="true" class="flex w-full form-input px-8 py-4 rounded-full border-2 mt-2"/></br>
+
+          <label for="email" class="block text-gray-700 text-sm font-bold  mt-1" >Email:</label>
+          <input type="email" name="email" id="email" required="true" autocomplete="off" class="flex w-full form-input px-8 py-3 rounded-full border-2 mt-2"/></br>
+
+          <label for="password" class="block text-gray-700 text-sm font-bold  mt-1" >Password:</label>
+          <input type="password" name="password" id="password" class="flex w-full form-input px-8 py-3 rounded-full border-2 mt-2"/></br>
+
+          <label for="dob" class="block text-gray-700 text-sm font-bold  mt-1" >Date of birth:</label>
+          <input type="date" required="true" name="dob" id="dob" class="flex w-full form-input px-8 py-3 rounded-full border-2 mt-2"/></br></br>
+
+          <input type="checkbox" name="acceptterms" id="acceptterms"/>
+          <label for="acceptterms" class="flex w-full text-gray-700 text-sm font-bold " >Accept Terms & Conditions</label></br></br>
+
+          <button type="submit" name="submit" id="submit" class=" flex w-full justify-center bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-20  rounded shadow bg-indigo-500" >Submit</button>
+      </form>
+  </div>
+</body>
+<script>
+  
+
+  let validate = (element) => {
+      if (element.validity.typeMismatch) {
+          element.setCustomValidity("The email format seems incorrect");
+          element.reportValidity();
+      } else {
+          element.setCustomValidity("");
+          element.reportValidity();
+      }
+  }
+
+  let validateDOB = (element) => {
+      console.log("Logging DOB")
+      let selectedDate = new Date(element.value)
+      selectedDate.setHours(0, 0, 0, 0);
+
+      let lowerDate = new Date(selectedDate)
+      lowerDate.setFullYear(selectedDate.getFullYear() + 18)
+
+      let upperDate = new Date(selectedDate)
+      upperDate.setFullYear(selectedDate.getFullYear() + 56)
+
+      let currentDate = new Date()
+
+      console.log(selectedDate)
+      console.log(lowerDate)
+      console.log(upperDate)
+      if (currentDate < lowerDate || currentDate >= upperDate) {
+          element.setCustomValidity("Sorry. You must be between 18 to 55 years of age.");
+          element.reportValidity();
+      } else {
+          element.setCustomValidity("");
+          element.reportValidity();
+      }
+  }
+
+  let saveData = (userForm) => {
+      name = document.getElementById("name").value;
+      email = document.getElementById("email").value;
+      password = document.getElementById("password").value;
+      dob = document.getElementById("dob").value;
+      acceptTerms = document.getElementById("acceptterms").checked;
+      let user1 = {
+          name, email, password, dob, acceptTerms
+      }
+      let users = getData()
+      users.push(user1)
+      localStorage.setItem("users", JSON.stringify(users))
+      displayData();
+  }
+
+  let getData = () => {
+      let storedData = localStorage.getItem("users");
+      return storedData ? JSON.parse(storedData) : [];
+  }
+
+  let displayData = () => {
+      let savedData = getData();
+      let tableRows = savedData.map((data) => {
+          let nameCell = "<td class =\"border px-4 py-2\">" + data.name + "</td>";
+          let emailCell = "<td class =\"border px-4 py-2\">" + data.email + "</td>";
+          let passwordCell = "<td class =\"border px-4 py-2\">" + data.password + "</td>";
+          let dobCell = "<td class =\"border px-4 py-2\">" + data.dob + "</td>";
+          let acceptTermsCell = "<td class =\"border px-4 py-2\">" + data.acceptTerms + "</td>";
+          return "<tr>" + nameCell + " " + emailCell + " " + passwordCell + " " + dobCell + " " + acceptTermsCell + "</tr>";
+      }).join("</br>");
+      table = document.getElementById("saved-data");
+      let tableTitle = "<thead><th>Name</th><th>Email</th><th>Password</th><th>Date Of Birth</th><th>Accepted Terms</th></thead></br>";
+      table.innerHTML = tableTitle + tableRows
+  }
+
+  let email = document.getElementById("email");
+  email.addEventListener('input', () => validate(email));
+
+  let submit = document.getElementById("submit");
+  submit.addEventListener('click', () => validate(email));
+  submit.addEventListener('click', () => validateDOB(dateField));
+
+  let dateField = document.getElementById("dob");
+  dateField.addEventListener('input', () => validateDOB(dateField));
+  dateField.addEventListener('change', () => validateDOB(dateField));
+  
+  let userForm = document.getElementById("user-form")
+  userForm.addEventListener('submit', () => saveData(userForm));
+  displayData();
+</script>
